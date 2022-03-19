@@ -25,7 +25,7 @@ potentially be fixed by just using neovim's `buf_set_lines` instead of
 `setline`, I honestly didn't even consider testing `buf_set_lines` and
 just realized this as I write this readme. I suppose that's worth
 testing. Anyway, I wrote
-[src/incremental-change.fnl](src/incremental-change.fnl) and a
+[incremental-change.fnl][] and a
 `buf-apply-diff` function that computes a diff for the entire file, then
 another diff for each of the changed lines and finally uses
 `nvim_buf_set_text` to make the smallest possible changes. Since
@@ -60,4 +60,6 @@ vim.api.nvim_create_autocmd("VimEnter", {callback = load_parinfer})
 
 
 [parinfer-rust]: https://github.com/eraserhd/parinfer-rust
+[incremental-change.fnl]: fnl/parinfer/incremental-change.fnl
+[lib.fnl]: fnl/parinfer/lib.fnl
 
