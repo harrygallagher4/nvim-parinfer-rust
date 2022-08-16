@@ -1,6 +1,7 @@
 (local ffi (require :ffi))
 (local ffi-string ffi.string)
 (local {:encode json-encode :decode json-decode} vim.json)
+(local get_runtime_file vim.api.nvim_get_runtime_file)
 
 (fn resolve-lib []
   (let [libname
@@ -8,7 +9,7 @@
           "OSX" "libparinfer_rust.dylib"
           "Windows" "parinfer_rust.dll"
           _ "libparinfer_rust.so")]
-    (vim.api.nvim_get_runtime_file (.. "target/release/" libname) false)))
+    (get_runtime_file (.. "target/release/" libname) false)))
 
 (fn runner [parinfer]
   (fn run [request]
@@ -22,13 +23,14 @@
   (let [[lib-path] (resolve-lib)] lib-path))
 
 (fn load-parinfer [lib-path]
-  (if (= nil lib-path) (vim.notify "Could not load parinfer library" vim.log.levels.ERROR)
-    (do (ffi.cdef "char *run_parinfer(const char *json);")
-        (let [ns (ffi.load lib-path)]
-          {:interface ns :run (runner ns)}))))
+  (if (= nil lib-path)
+      (vim.notify "Could not load parinfer library" vim.log.levels.ERROR)
+      (do (ffi.cdef "char *run_parinfer(const char *json);")
+          (let [ns (ffi.load lib-path)]
+            {:interface ns :run (runner ns)}))))
 
 (fn parinfer-rust-loaded? []
-  (< 0 (length (vim.api.nvim_get_runtime_file "target/release/*parinfer_rust.*" true))))
+  (< 0 (length (get_runtime_file "target/release/*parinfer_rust.*" true))))
 
 ; packadd! parinfer-rust will add the plugin to runtimepath without
 ; sourcing plugin/parinfer.vim. this way the library can still be
@@ -41,3 +43,4 @@
 
 (setup)
 
+;; vim: cc=81

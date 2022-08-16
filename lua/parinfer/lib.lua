@@ -3,6 +3,7 @@ local ffi_string = ffi.string
 local _local_1_ = vim.json
 local json_encode = _local_1_["encode"]
 local json_decode = _local_1_["decode"]
+local get_runtime_file = vim.api.nvim_get_runtime_file
 local function resolve_lib()
   local libname
   do
@@ -18,7 +19,7 @@ local function resolve_lib()
       libname = nil
     end
   end
-  return vim.api.nvim_get_runtime_file(("target/release/" .. libname), false)
+  return get_runtime_file(("target/release/" .. libname), false)
 end
 local function runner(parinfer)
   local function run(request)
@@ -41,7 +42,7 @@ local function load_parinfer(lib_path)
   end
 end
 local function parinfer_rust_loaded_3f()
-  return (0 < #vim.api.nvim_get_runtime_file("target/release/*parinfer_rust.*", true))
+  return (0 < #get_runtime_file("target/release/*parinfer_rust.*", true))
 end
 local function setup()
   if ((0 == vim.fn.exists("g:parinfer_dont_load_rust")) and not parinfer_rust_loaded_3f()) then

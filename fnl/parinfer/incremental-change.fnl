@@ -20,41 +20,50 @@
 (fn set-line-text [buf line cs ce replacement]
   (buf-set-text buf line cs line ce [replacement]))
 
-; @params (A B) strings to compare. Must not be multi-line strings (no '\n')
-; @returns [[i j u v]] where (i j) and (u v) are (start, count) ranges
-;        corresponding to strings A and B, respectively
+;; @params (A B) strings to compare. Must not be multi-line strings (no '\n')
+;; @returns [[i j u v]] where (i j) and (u v) are (start, count) ranges
+;;        corresponding to strings A and B, respectively
 (fn diff-line [a b]
   (let [inputA (t/cat (split a "") "\n")
         inputB (t/cat (split b "") "\n")]
     (diff inputA inputB d-line-opts)))
 
-; @params (i j) single-line-diff style range
-; @returns (start_col end_col)
+;; @params (i j) single-line-diff style range
+;; @returns (start_col end_col)
 (fn transform-range [i j]
   (if (= 0 j) (values i i)
       (values (- i 1) (+ i j -1))))
 
+;; the j=0: -1 condition is either never true or by a miraculous
+;; coincidence is actually the *correct* return value.
+;; TODO: test that
 (fn hunk2lines [i j]
   (if (= 0 j) [-1]
       (let [range []]
         (for [x i (+ i j -1)]
           (t/ins range x)) range)))
 
+;; this name means `diff-line-to-buf-set-text-multi`
 (fn dl2bst-multi [strA strB]
   (icollect [_ [i j u v] (sriapi (diff-line strA strB))]
     (let [(cs ce) (transform-range i j)]
       [cs ce (sub strB u (max (+ u v -1) 0))])))
 
-; needs to be able to handle cases where one line is replaced with two
-; or two lines replaced with one, etc. (actually maybe it doesn't need
-; to be able to handle that)
-; TODO: investigate whether parinfer will ever entirely delete a line
+;; needs to be able to handle cases where one line is replaced with two
+;; or two lines replaced with one, etc. (actually maybe it doesn't need
+;; to be able to handle that)
+;; TODO: investigate whether parinfer will ever entirely delete a line
+;; update^: i've been using this plugin in place of parinfer-rust for almost
+;;   two months now and have *never* had this function fail. this is just
+;;   anecdotal evidence rather than an actual investigation of all possible
+;;   behaviours but i am rather thrilled.
 (fn buf-apply-diff [buf prev prevLines text textLines]
-  (ieach-> [[hl hn hle hne] (diff prev text d-opts)
-            l (hunk2lines hl hn)
-            [cs ce replacement] (dl2bst-multi (. prevLines l) (. textLines l))]
+  (ieach^ [[hl hn hle hne] (diff prev text d-opts)
+           l (hunk2lines hl hn)
+           [cs ce replacement] (dl2bst-multi (. prevLines l) (. textLines l))]
     (set-line-text buf (- l 1) cs ce replacement)))
 
 
 {: buf-apply-diff}
 
+;; vim: cc=81

@@ -1,6 +1,5 @@
-local t_2fins = table.insert
 local tbl_extend = vim.tbl_extend
-local function sriapi_it__2a(t, i)
+local function sriapi_it_2a(t, i)
   i = (i - 1)
   if (0 ~= i) then
     return i, t[i]
@@ -8,41 +7,43 @@ local function sriapi_it__2a(t, i)
     return nil
   end
 end
-local function sriapi_it_(t, i)
-  if (1 ~= i) then
-    return (i - 1), t[(i - 1)]
+local function sriapi(t)
+  return sriapi_it_2a, t, (1 + #t)
+end
+local function extend(base, t2, ...)
+  local _2_, _3_ = t2, select("#", ...)
+  if ((_2_ == nil) and (_3_ == 0)) then
+    return base
+  elseif ((_2_ == nil) and true) then
+    local _ = _3_
+    return extend(base, ...)
+  elseif ((nil ~= _2_) and (_3_ == 0)) then
+    local ext = _2_
+    return tbl_extend("force", base, ext)
+  elseif ((nil ~= _2_) and true) then
+    local ext = _2_
+    local _ = _3_
+    return extend(extend(base, ext), ...)
   else
     return nil
   end
 end
-local function sriapi(t)
-  return sriapi_it__2a, t, (1 + #t)
-end
-local function merge_arg(...)
-  local tbl = {}
-  for i = 1, select("#", ...) do
-    local v = select(i, ...)
-    if (nil ~= v) then
-      t_2fins(tbl, v)
-    else
-    end
-  end
-  return tbl
-end
-local function merge_left(...)
-  local args = merge_arg(...)
-  if (1 == #args) then
-    return args[1]
+local function extend_keep(base, t2, ...)
+  local _5_, _6_ = t2, select("#", ...)
+  if ((_5_ == nil) and (_6_ == 0)) then
+    return base
+  elseif ((_5_ == nil) and true) then
+    local _ = _6_
+    return extend_keep(base, ...)
+  elseif ((nil ~= _5_) and (_6_ == 0)) then
+    local ext = _5_
+    return tbl_extend("keep", base, ext)
+  elseif ((nil ~= _5_) and true) then
+    local ext = _5_
+    local _ = _6_
+    return extend_keep(extend_keep(base, ext), ...)
   else
-    return tbl_extend("keep", unpack(args))
+    return nil
   end
 end
-local function merge_right(...)
-  local args = merge_arg(...)
-  if (1 == #args) then
-    return args[1]
-  else
-    return tbl_extend("force", unpack(args))
-  end
-end
-return {["merge-left"] = merge_left, ["merge-right"] = merge_right, sriapi = sriapi, ["reverse-ipairs"] = sriapi, merge = merge_right, lmerge = merge_left, rmerge = merge_right}
+return {sriapi = sriapi, extend = extend, ["extend-keep"] = extend_keep, ["reverse-ipairs"] = sriapi, ["extend-force"] = extend}

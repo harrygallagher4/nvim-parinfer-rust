@@ -12,5 +12,5 @@
         (table.insert (. levels (/ i 2)) form)))
   (ieach-rec 1 levels body))
 
-{:ieach-> ieach}
+{:ieach^ ieach}
 

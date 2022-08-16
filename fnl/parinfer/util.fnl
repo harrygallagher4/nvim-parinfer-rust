@@ -1,41 +1,31 @@
-(local (t/ins) (values table.insert))
 (local (tbl_extend) (values vim.tbl_extend))
 
-(fn sriapi-it-* [t i]
+(fn sriapi-it* [t i]
   (set-forcibly! i (- i 1))
   (when (not= 0 i)
     (values i (. t i))))
 
-(fn sriapi-it- [t i]
-  (when (not= 1 i)
-    (values (- i 1) (. t (- i 1)))))
-
 (fn sriapi [t]
-  (values sriapi-it-* t (+ 1 (length t))))
+  (values sriapi-it* t (+ 1 (length t))))
 
-(fn merge-arg [...]
-  (local tbl [])
-  (for [i 1 (select "#" ...)]
-    (let [v (select i ...)]
-      (when (not= nil v) (t/ins tbl v))))
-  tbl)
+(fn extend [base t2 ...]
+  (match (values t2 (select :# ...))
+    (nil 0) base
+    (nil _) (extend base ...)
+    (ext 0) (tbl_extend :force base ext)
+    (ext _) (extend (extend base ext) ...)))
 
-(fn merge-left [...]
-  (let [args (merge-arg ...)]
-    (if (= 1 (length args))
-      (. args 1)
-      (tbl_extend "keep" (unpack args)))))
+(fn extend-keep [base t2 ...]
+  (match (values t2 (select :# ...))
+    (nil 0) base
+    (nil _) (extend-keep base ...)
+    (ext 0) (tbl_extend :keep base ext)
+    (ext _) (extend-keep (extend-keep base ext) ...)))
 
-(fn merge-right [...]
-  (let [args (merge-arg ...)]
-    (if (= 1 (length args))
-      (. args 1)
-      (tbl_extend "force" (unpack args)))))
+{: sriapi
+ : extend
+ : extend-keep
+ :reverse-ipairs sriapi
+ :extend-force extend}
 
-
-{: merge-left : merge-right
- : sriapi :reverse-ipairs sriapi
- :merge merge-right
- :lmerge merge-left
- :rmerge merge-right}
-
+;; vim: cc=81
