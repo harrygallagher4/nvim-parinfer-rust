@@ -49,16 +49,10 @@ autocmd VimEnter * lua require('parinfer').setup()
 ```
 
 
-<a href="http://creativecommons.org/publicdomain/zero/1.0">
-<img height="22" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg">
-<img height="22" src="https://mirrors.creativecommons.org/presskit/icons/zero.svg">
-</a>
-
-
-## Postscript
+#### postscript
 
 <details>
-<summary>Developer rambling...</summary>
+<summary>developer rambling...</summary>
 
 This plugin is two things, both of which are experimental.
 
@@ -99,7 +93,23 @@ different methods of text changing for performance and behaviour.
 
 
 
+<!--
+[![License: CC0-1.0](https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/cc-zero.svg)](http://creativecommons.org/publicdomain/zero/1.0/)
+-->
+
+<br/>
+
+<a href="http://creativecommons.org/publicdomain/zero/1.0/"><img alt="License: CC0-1.0" height="20" src="https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/cc-zero.svg"/></a>
+
+<!-- Old cc0 icons. I'd like to combine these into a badge that also says "public domain"
+<a href="http://creativecommons.org/publicdomain/zero/1.0">
+<img height="22" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg">
+<img height="22" src="https://mirrors.creativecommons.org/presskit/icons/zero.svg">
+</a>
+-->
+
+
+
 [parinfer-rust]: https://github.com/eraserhd/parinfer-rust
 [incremental-change.fnl]: fnl/parinfer/incremental-change.fnl
 [lib.fnl]: fnl/parinfer/lib.fnl
-
