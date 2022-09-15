@@ -1,13 +1,13 @@
 local incr_bst = require("parinfer.incremental-change")
-local _local_1_ = require("parinfer.lib")
-local run_parinfer = _local_1_["run"]
-local _local_2_ = require("parinfer.util")
-local extend_keep = _local_2_["extend-keep"]
-local _local_3_ = require("parinfer.options")
-local get_options = _local_3_["get-options"]
-local get_buf_options = _local_3_["get-buf-options"]
-local update_option = _local_3_["update-option"]
-local opts_setup = _local_3_["setup"]
+local lib = require("parinfer.lib")
+local run_parinfer = nil
+local _local_1_ = require("parinfer.util")
+local extend_keep = _local_1_["extend-keep"]
+local _local_2_ = require("parinfer.options")
+local get_options = _local_2_["get-options"]
+local get_buf_options = _local_2_["get-buf-options"]
+local update_option = _local_2_["update-option"]
+local opts_setup = _local_2_["setup"]
 local buf_apply_diff = incr_bst["buf-apply-diff"]
 local t_2fcat, t_2fins = table.concat, table.insert
 local json, split, cmd = vim.json, vim.split, vim.cmd
@@ -31,15 +31,15 @@ local buf_clear_namespace = vim.api.nvim_buf_clear_namespace
 local process_events = {"CursorMoved", "InsertEnter", "TextChanged", "TextChangedI", "TextChangedP"}
 local cursor_events = {"BufEnter", "WinEnter"}
 local function notify_error(buf, request, res)
-  local function _4_()
-    local t_5_ = res
-    if (nil ~= t_5_) then
-      t_5_ = (t_5_).error
+  local function _3_()
+    local t_4_ = res
+    if (nil ~= t_4_) then
+      t_4_ = (t_4_).error
     else
     end
-    return t_5_
+    return t_4_
   end
-  return vim.notify(t_2fcat({("[Parinfer] error in buffer " .. buf), json.encode((_4_() or {})), json.encode(request), json.encode((res or {}))}, "\n"), vim.log.levels.ERROR)
+  return vim.notify(t_2fcat({("[Parinfer] error in buffer " .. buf), json.encode((_3_() or {})), json.encode(request), json.encode((res or {}))}, "\n"), vim.log.levels.ERROR)
 end
 local function ensure_augroup()
   if (nil == state.augroup) then
@@ -68,14 +68,14 @@ local function abuf()
   return tonumber(expand("<abuf>"))
 end
 local function handle_trails(group)
-  local function _9_(buf, trails)
+  local function _8_(buf, trails)
     buf_clear_namespace(buf, ns, 0, -1)
     if trails then
-      for _, _10_ in ipairs(trails) do
-        local _each_11_ = _10_
-        local startX = _each_11_["startX"]
-        local endX = _each_11_["endX"]
-        local lineNo = _each_11_["lineNo"]
+      for _, _9_ in ipairs(trails) do
+        local _each_10_ = _9_
+        local startX = _each_10_["startX"]
+        local endX = _each_10_["endX"]
+        local lineNo = _each_10_["lineNo"]
         buf_add_highlight(buf, ns, group, lineNo, startX, endX)
       end
       return nil
@@ -83,12 +83,12 @@ local function handle_trails(group)
       return nil
     end
   end
-  return _9_
+  return _8_
 end
 local function get_cursor()
-  local _let_13_ = win_get_cursor(0)
-  local row = _let_13_[1]
-  local col = _let_13_[2]
+  local _let_12_ = win_get_cursor(0)
+  local row = _let_12_[1]
+  local col = _let_12_[2]
   return (row - 1), col
 end
 local function set_cursor(row, col)
@@ -100,60 +100,60 @@ local function get_buf_content(buf)
 end
 local function refresh_changedtick(buf)
   local bufstate = state[buf]
-  local function _14_()
+  local function _13_()
     bufstate["changedtick"] = buf_get_changedtick(buf)
     return nil
   end
-  return _14_
+  return _13_
 end
 local function refresh_cursor(buf)
   local bufstate = state[buf]
-  local function _15_()
+  local function _14_()
     local cl, cx = get_cursor()
-    local _16_ = bufstate
-    _16_["cursorX"] = cx
-    _16_["cursorLine"] = cl
-    return _16_
+    local _15_ = bufstate
+    _15_["cursorX"] = cx
+    _15_["cursorLine"] = cl
+    return _15_
   end
-  return _15_
+  return _14_
 end
 local function refresh_text(buf)
   local bufstate = state[buf]
-  local function _17_()
+  local function _16_()
     local ct = buf_get_changedtick(buf)
     if (ct ~= bufstate.changedtick) then
-      local _18_ = bufstate
-      _18_["changedtick"] = ct
-      _18_["text"] = get_buf_content(buf)
-      return _18_
+      local _17_ = bufstate
+      _17_["changedtick"] = ct
+      _17_["text"] = get_buf_content(buf)
+      return _17_
     else
       return nil
     end
   end
-  return _17_
+  return _16_
 end
 local function refresher(buf)
   local ref_t = refresh_text(buf)
   local ref_c = refresh_cursor(buf)
-  local function _20_()
+  local function _19_()
     ref_t()
     return ref_c()
   end
-  return _20_
+  return _19_
 end
 local function make_processor(buf, mode, buf_opts)
   local bufstate = state[buf]
-  local _let_21_ = buf_opts
-  local commentChar = _let_21_["commentChar"]
-  local stringDelimiters = _let_21_["stringDelimiters"]
-  local forceBalance = _let_21_["forceBalance"]
-  local lispVlineSymbols = _let_21_["lispVlineSymbols"]
-  local lispBlockComments = _let_21_["lispBlockComments"]
-  local guileBlockComments = _let_21_["guileBlockComments"]
-  local schemeSexpComments = _let_21_["schemeSexpComments"]
-  local janetLongStrings = _let_21_["janetLongStrings"]
-  local trail_highlight = _let_21_["trail_highlight"]
-  local trail_highlight_group = _let_21_["trail_highlight_group"]
+  local _let_20_ = buf_opts
+  local commentChar = _let_20_["commentChar"]
+  local stringDelimiters = _let_20_["stringDelimiters"]
+  local forceBalance = _let_20_["forceBalance"]
+  local lispVlineSymbols = _let_20_["lispVlineSymbols"]
+  local lispBlockComments = _let_20_["lispBlockComments"]
+  local guileBlockComments = _let_20_["guileBlockComments"]
+  local schemeSexpComments = _let_20_["schemeSexpComments"]
+  local janetLongStrings = _let_20_["janetLongStrings"]
+  local trail_highlight = _let_20_["trail_highlight"]
+  local trail_highlight_group = _let_20_["trail_highlight_group"]
   local refresh_cursor0 = refresh_cursor(buf)
   local refresh_text0 = refresh_text(buf)
   local refresh_changedtick0 = refresh_changedtick(buf)
@@ -183,8 +183,7 @@ local function make_processor(buf, mode, buf_opts)
           else
           end
         else
-          notify_error(buf, req, res)
-          do end (bufstate)["error"] = res.error
+          bufstate["error"] = res.error
           refresh_text0()
         end
       end
@@ -204,10 +203,10 @@ local function enter_buffer(buf)
     for k, v in pairs({processors = processors, text = get_buf_content(buf), autocmds = {}, changedtick = -1, cursorX = cx, cursorLine = cl}) do
       state[buf][k] = v
     end
-    local _27_ = buf
-    buf_autocmd(_27_, process_events, processors[buf_opts.mode])
-    buf_autocmd(_27_, cursor_events, refresh_cursor(buf))
-    buf_autocmd(_27_, "InsertCharPre", refresher(buf))
+    local _26_ = buf
+    buf_autocmd(_26_, process_events, processors[buf_opts.mode])
+    buf_autocmd(_26_, cursor_events, refresh_cursor(buf))
+    buf_autocmd(_26_, "InsertCharPre", refresher(buf))
   else
   end
   return state[buf].processors.paren()
@@ -220,20 +219,20 @@ local function initialize_buffer()
   end
 end
 local function detach_buffer(buf)
-  local _31_
+  local _30_
   do
-    local t_30_ = state
-    if (nil ~= t_30_) then
-      t_30_ = (t_30_)[buf]
+    local t_29_ = state
+    if (nil ~= t_29_) then
+      t_29_ = (t_29_)[buf]
     else
     end
-    if (nil ~= t_30_) then
-      t_30_ = (t_30_).autocmds
+    if (nil ~= t_29_) then
+      t_29_ = (t_29_).autocmds
     else
     end
-    _31_ = t_30_
+    _30_ = t_29_
   end
-  if _31_ then
+  if _30_ then
     for _, v in ipairs(state[buf].autocmds) do
       del_autocmd(v)
     end
@@ -251,13 +250,34 @@ local function disable_parinfer_rust()
     return nil
   end
 end
-local function setup_21(conf)
+local function setup_2a(conf)
   if conf then
     opts_setup(conf)
   else
   end
   ensure_augroup()
   return autocmd("FileType", {callback = initialize_buffer, pattern = {"clojure", "scheme", "lisp", "racket", "hy", "fennel", "janet", "carp", "wast", "yuck", "dune"}})
+end
+local function setup_21(conf)
+  local _3frun
+  local function _37_()
+    local _36_ = conf
+    if ((_G.type(_36_) == "table") and ((_36_).managed == true)) then
+      return "managed"
+    elseif ((_G.type(_36_) == "table") and (nil ~= (_36_).path)) then
+      local p = (_36_).path
+      return p
+    else
+      return nil
+    end
+  end
+  _3frun = lib.load(_37_())
+  if _3frun then
+    run_parinfer = _3frun
+    return setup_2a(conf)
+  else
+    return nil
+  end
 end
 local function cleanup_21()
   return del_augroup()
@@ -271,27 +291,27 @@ local function detach_current_buf_21()
   return detach_buffer(get_current_buf())
 end
 local function refresh_current_buf_21()
-  local _37_ = get_current_buf()
-  detach_buffer(_37_)
-  enter_buffer(_37_)
-  return _37_
+  local _40_ = get_current_buf()
+  detach_buffer(_40_)
+  enter_buffer(_40_)
+  return _40_
 end
 local function toggle_trails_21()
-  local function _38_(_241)
+  local function _41_(_241)
     return not _241
   end
-  update_option("trail_highlight", _38_)
+  update_option("trail_highlight", _41_)
   return refresh_current_buf_21()
 end
 local function cmd_str(cmd_name)
-  local function _39_()
+  local function _42_()
     if (1 == vim.fn.exists("g:parinfer_enabled")) then
       return "ParinferFnl"
     else
       return "Parinfer"
     end
   end
-  return (_39_() .. cmd_name)
+  return (_42_() .. cmd_name)
 end
 local function parinfer_command_21(s, f, opts)
   return vim.api.nvim_create_user_command(cmd_str(s), f, (opts or {}))
@@ -302,4 +322,18 @@ parinfer_command_21("Refresh", refresh_current_buf_21)
 parinfer_command_21("Trails", toggle_trails_21)
 parinfer_command_21("Setup", setup_21)
 parinfer_command_21("Cleanup", cleanup_21)
+local function _43_()
+  local function _44_(_2410)
+    return _2410.install()
+  end
+  return _44_(require("parinfer.install"))
+end
+parinfer_command_21("Install", _43_)
+local function _45_()
+  local function _46_(_2410)
+    return _2410.update()
+  end
+  return _46_(require("parinfer.install"))
+end
+parinfer_command_21("Update", _45_)
 return {["setup!"] = setup_21, ["cleanup!"] = cleanup_21, ["attach-current-buf!"] = attach_current_buf_21, ["detach-current-buf!"] = detach_current_buf_21, ["refresh-current-buf!"] = refresh_current_buf_21, ["toggle-trails!"] = toggle_trails_21, setup = setup_21, cleanup = cleanup_21, attach_current_buf = attach_current_buf_21, detach_current_buf = detach_current_buf_21, refresh_current_buf = refresh_current_buf_21, toggle_trails = toggle_trails_21}
