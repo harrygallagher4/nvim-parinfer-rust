@@ -39,7 +39,7 @@ use {
 ```vim
 call plug#begin()
 " ...
-Plug 'eraserhd/parinfer-rust', {'rtp': 'target/release'}
+Plug 'eraserhd/parinfer-rust', {'rtp': 'target/release', 'do': 'cargo build --release'}
 Plug 'harrygallagher4/nvim-parinfer-rust'
 " ...
 call plug#end()
