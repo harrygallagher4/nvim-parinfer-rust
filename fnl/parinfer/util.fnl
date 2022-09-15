@@ -1,4 +1,8 @@
+(local ffi (require :ffi))
 (local (tbl_extend) (values vim.tbl_extend))
+
+(local path-separator (if (= :Windows ffi.os) "\\" "/"))
+(fn path-concat [...] (table.concat [...] path-separator))
 
 (fn sriapi-it* [t i]
   (set-forcibly! i (- i 1))
@@ -25,6 +29,8 @@
 {: sriapi
  : extend
  : extend-keep
+ : path-separator
+ : path-concat
  :reverse-ipairs sriapi
  :extend-force extend}
 

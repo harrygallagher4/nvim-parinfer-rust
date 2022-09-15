@@ -1,5 +1,7 @@
 (local incr-bst (require :parinfer.incremental-change))
-(local {:run run-parinfer} (require :parinfer.lib))
+(local lib (require :parinfer.lib))
+(var run-parinfer nil)
+
 (local {: extend-keep} (require :parinfer.util))
 (local {: get-options
         : get-buf-options
@@ -171,17 +173,13 @@
                 (tset bufstate :text res.text)
                 (when (not= nil trails-fn) (trails-fn buf res.parenTrails)))
               (do
-                (notify-error buf req res)
+                ; (notify-error buf req res) ; disabling for now
                 (tset bufstate :error res.error)
                 (refresh-text))))
         (refresh-changedtick))
       (refresh-cursor))))
 
 ;; initialize buffer state if necessary, process buffer in paren mode
-;; TODO: handle mode. shouldn't be hard
-;; all that really needs to be done is set the `process-events` autocmd
-;; to call `process-{mode}` and also make sure to re-init the buffer
-;; whenever mode is changed. that's also how settings can be handled
 (fn enter-buffer [buf]
   (when (= nil (. state buf))
     (tset state buf {})
@@ -220,9 +218,7 @@
   (when (= 1 (vim.fn.exists "g:parinfer_enabled"))
     (tset vim.g :parinfer_enabled 0)))
 
-;; :ParinferSetup as well as the main entry-point of this module
-;; sets up autocmds to initialize new buffers
-(fn setup! [conf]
+(fn setup* [conf]
   (when conf (opts-setup conf))
   (ensure-augroup)
   (autocmd :FileType {:callback initialize-buffer
@@ -237,6 +233,16 @@
                                 "wast"
                                 "yuck"
                                 "dune"]}))
+
+;; :ParinferSetup as well as the main entry-point of this module
+;; sets up autocmds to initialize new buffers
+(fn setup! [conf]
+  (let [?run (lib.load (match conf
+                         {:managed true} :managed
+                         {:path p} p))]
+    (when ?run
+      (set run-parinfer ?run)
+      (setup* conf))))
 
 ;; :ParinferCleanup
 ;; delete parinfennel augroup which contains the init callback & all processors
@@ -266,6 +272,11 @@
 
 ;;; if parinfer-rust is active commands should start with :ParinferFnl,
 ;; otherwise they just start with :Parinfer
+;;
+;; (09.14.2022) I guess there's a slight chance the `parinfer-rust` vim plugin
+;; gets loaded but the way the library is handled now should entirely prevent
+;; that. Should probably check for that when initializing everything and make
+;; it an error before getting rid of this.
 (fn cmd-str [cmd-name]
   (.. (if (= 1 (vim.fn.exists "g:parinfer_enabled"))
           :ParinferFnl
@@ -281,6 +292,8 @@
 (parinfer-command! :Trails toggle-trails!)
 (parinfer-command! :Setup setup!)
 (parinfer-command! :Cleanup cleanup!)
+(parinfer-command! :Install #(#($.install) (require :parinfer.install)))
+(parinfer-command! :Update #(#($.update) (require :parinfer.install)))
 
 {: setup!
  : cleanup!
