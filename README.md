@@ -49,6 +49,12 @@ autocmd VimEnter * lua require('parinfer').setup()
 ```
 
 
+<a href="http://creativecommons.org/publicdomain/zero/1.0">
+<img height="22" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg">
+<img height="22" src="https://mirrors.creativecommons.org/presskit/icons/zero.svg">
+</a>
+
+
 ## Postscript
 
 <details>
@@ -90,6 +96,8 @@ on the entire buffer would preserve extmarks properly. I hope to test the
 different methods of text changing for performance and behaviour.
 
 </details>
+
+
 
 [parinfer-rust]: https://github.com/eraserhd/parinfer-rust
 [incremental-change.fnl]: fnl/parinfer/incremental-change.fnl
